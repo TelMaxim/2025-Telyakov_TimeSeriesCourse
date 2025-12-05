@@ -1,56 +1,34 @@
+import matplotlib.pyplot as plt
 import numpy as np
-import pandas as pd
-
-# for visualization
-import plotly
-from plotly.subplots import make_subplots
-from plotly.offline import init_notebook_mode
-import plotly.graph_objs as go
-plotly.offline.init_notebook_mode(connected=True)
 
 
-def plot_ts(ts_set: np.ndarray, plot_title: str = 'Input Time Series Set'):
+def plot_ts(ts_set: np.ndarray, plot_title: str = 'Набор входных временных рядов'):
     """
-    Plot the time series set
-
-    Parameters
-    ----------
-    ts_set: time series set with shape (ts_number, ts_length)
-    plot_title: title of plot
+    Plot the time series set using Matplotlib (More stable than Plotly)
     """
 
-    ts_num, m = ts_set.shape
+    # Если массив одномерный (один ряд), делаем его двумерным (1, N)
+    if ts_set.ndim == 1:
+        ts_set = ts_set.reshape(1, -1)
 
-    fig = go.Figure()
+    # Создаем фигуру
+    plt.figure(figsize=(12, 5))
 
-    for i in range(ts_num):
-        fig.add_trace(go.Scatter(x=np.arange(m), y=ts_set[i], line=dict(width=3), name="Time series " + str(i)))
+    # Рисуем каждый временной ряд
+    for i in range(ts_set.shape[0]):
+        plt.plot(ts_set[i], label=f"Временной ряд {i}", linewidth=2)
 
-    fig.update_xaxes(showgrid=False,
-                     title='Time',
-                     title_font=dict(size=18, color='black'),
-                     linecolor='#000',
-                     ticks="outside",
-                     tickfont=dict(size=16, color='black'),
-                     linewidth=1,
-                     tickwidth=1)
-    fig.update_yaxes(showgrid=False,
-                     title='Values',
-                     title_font=dict(size=18, color='black'),
-                     linecolor='#000',
-                     ticks="outside",
-                     tickfont=dict(size=16, color='black'),
-                     zeroline=False,
-                     linewidth=1,
-                     tickwidth=1)
+    # Настройки оформления
+    plt.title(plot_title, fontsize=14)
+    plt.xlabel("Time", fontsize=12)
+    plt.ylabel("Values", fontsize=12)
 
-    fig.update_layout(title={'text': plot_title, 'x': 0.5, 'y':0.9, 'xanchor': 'center', 'yanchor': 'top'},
-                      title_font=dict(size=18, color='black'),
-                      plot_bgcolor="rgba(0,0,0,0)",
-                      paper_bgcolor='rgba(0,0,0,0)',
-                      legend=dict(font=dict(size=16, color='black')),
-                      width=1000,
-                      height=400
-                      )
+    # Если рядов немного (меньше 10), показываем легенду, иначе она засорит график
+    if ts_set.shape[0] < 10:
+        plt.legend()
 
-    fig.show(renderer="colab")
+    plt.grid(True, linestyle='--', alpha=0.5)
+    plt.tight_layout()
+
+    # Отображаем
+    plt.show()

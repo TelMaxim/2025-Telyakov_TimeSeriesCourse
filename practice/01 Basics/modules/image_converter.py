@@ -3,7 +3,16 @@ import pandas as pd
 import math
 import cv2
 import imutils
-from google.colab.patches import cv2_imshow
+#from google.colab.patches import cv2_imshow
+
+def cv2_imshow(image):
+    # Конвертируем BGR (OpenCV) в RGB (Matplotlib) и выводим
+    if len(image.shape) == 3:
+        plt.imshow(cv2.cvtColor(image, cv2.COLOR_BGR2RGB))
+    else:
+        plt.imshow(image, cmap='gray')
+    plt.axis('off')
+    plt.show()
 
 
 class Image2TimeSeries:
@@ -197,3 +206,11 @@ class Image2TimeSeries:
             ts.append(dist)
 
         return np.array(ts)
+
+def image2ts(image_path, step=5):
+    """
+    Helper function to convert image to time series
+    """
+    converter = Image2TimeSeries(step=step)
+    ts = converter.convert(image_path)
+    return ts

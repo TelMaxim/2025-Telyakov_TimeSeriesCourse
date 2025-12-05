@@ -49,7 +49,14 @@ class PairwiseDistance:
 
         dist_func = None
 
-        # INSERT YOUR CODE
+        if self.metric == 'euclidean':
+            dist_func = ED_distance
+        elif self.metric == 'dtw':
+            dist_func = DTW_distance
+        elif self.metric == 'norm_euclidean':
+            dist_func = norm_ED_distance
+        else:
+            raise ValueError(f"Unknown metric: {self.metric}")
 
         return dist_func
 
@@ -68,7 +75,29 @@ class PairwiseDistance:
         
         matrix_shape = (input_data.shape[0], input_data.shape[0])
         matrix_values = np.zeros(shape=matrix_shape)
-        
-        # INSERT YOUR CODE
+
+        n_samples = input_data.shape[0]
+
+        # Получаем функцию расстояния
+        dist_func = self._choose_distance()
+
+        # Предварительная нормализация данных
+        # Если включена нормализация И метрика не является norm_euclidean (которая нормализует внутри себя),
+        # то нормализуем весь массив заранее для ускорения вычислений.
+        if self.is_normalize and self.metric != 'norm_euclidean':
+            # Применяем z_normalize к каждому ряду
+            X_processed = np.array([z_normalize(x) for x in input_data])
+        else:
+            X_processed = input_data
+
+        # Заполнение матрицы (только верхний треугольник + симметрия)
+        for i in range(n_samples):
+            for j in range(i + 1, n_samples):
+                # Вычисление расстояния
+                dist = dist_func(X_processed[i], X_processed[j])
+
+                # Заполнение симметричных ячеек
+                matrix_values[i, j] = dist
+                matrix_values[j, i] = dist
 
         return matrix_values

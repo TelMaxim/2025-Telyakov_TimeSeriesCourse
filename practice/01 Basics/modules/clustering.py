@@ -19,12 +19,18 @@ class TimeSeriesHierarchicalClustering:
             Options: {single, complete, average, weighted}
     """
 
-    def __init__(self, n_clusters: int = 3, method: str = 'complete') -> None:
+    def __init__(self, n_clusters: int = 3, method: str = 'average') -> None:
 
         self.n_clusters: int = n_clusters
         self.method: str = method
-        self.model: AgglomerativeClustering | None = None
-        self.linkage_matrix: np.ndarray | None = None
+        self.model = AgglomerativeClustering(
+            n_clusters=n_clusters,
+            metric='precomputed', # так как мы подаем матрицу расстояний
+            linkage=method,
+            compute_distances=True # для отрисовки дендрограммы
+        )
+        self.labels_ = None
+        self.linkage_matrix = None
 
 
     def _create_linkage_matrix(self) -> np.ndarray:
@@ -53,7 +59,7 @@ class TimeSeriesHierarchicalClustering:
         return linkage_matrix
 
 
-    def fit(self, distance_matrix: np.ndarray) -> Self:
+    def fit(self, distance_matrix: np.ndarray):
         """
         Fit the agglomerative clustering model based on distance matrix
 
@@ -66,7 +72,14 @@ class TimeSeriesHierarchicalClustering:
         self: the fitted model
         """
 
-       # INSERT YOUR CODE
+        # Обучаем модель на матрице расстояний
+
+        self.model.fit(distance_matrix)
+
+        # Сохраняем метки кластеров в атрибут класса для удобства
+        self.labels_ = self.model.labels_
+        # Создаем и сохраняем linkage_matrix
+        self.linkage_matrix = self._create_linkage_matrix()
 
         return self
 
