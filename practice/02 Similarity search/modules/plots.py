@@ -51,10 +51,10 @@ def plot_ts_set(ts_set: np.ndarray, title: str = 'Input Time Series Set') -> Non
                       legend=dict(font=dict(size=20, color='black'))
                       )
 
-    fig.show(renderer="colab")
+    fig.show()
 
 
-def mplot2d(x: np.ndarrray, y: np.ndarrray, plot_title: str = None, x_title: str = None, y_title: str = None, trace_titles: np.ndarray = None) -> None:
+def mplot2d(x: np.ndarray, y: np.ndarray, plot_title: str = None, x_title: str = None, y_title: str = None, trace_titles: np.ndarray = None) -> None:
     """
     Multiple 2D Plots on figure for different experiments
 
@@ -100,10 +100,10 @@ def mplot2d(x: np.ndarrray, y: np.ndarrray, plot_title: str = None, x_title: str
                       height=600
                       )
 
-    fig.show(renderer="colab")
+    fig.show()
 
 
-def plot_bestmatch_data(ts: np.ndarrray, query: np.ndarray) -> None:
+def plot_bestmatch_data(ts: np.ndarray, query: np.ndarray) -> None:
     """
     Visualize the input data (time series and query) for the best match task
 
@@ -146,10 +146,10 @@ def plot_bestmatch_data(ts: np.ndarrray, query: np.ndarray) -> None:
                       showlegend=False,
                       title_x=0.5)
 
-    fig.show(renderer="colab")
+    fig.show()
 
 
-def plot_bestmatch_results(ts: np.ndarrray, query: np.ndarrray, bestmatch_results: dict) -> None:
+def plot_bestmatch_results(ts: np.ndarray, query: np.ndarray, bestmatch_results: dict) -> None:
     """
     Visualize the best match results
 
@@ -157,13 +157,63 @@ def plot_bestmatch_results(ts: np.ndarrray, query: np.ndarrray, bestmatch_result
     ----------
     ts: time series
     query: query
-    bestmatch_results: output data found by the best match algorithm
+    bestmatch_results: output data found by the best match algorithm (dict with 'indices' and 'distances')
     """
+    fig = go.Figure()
 
-    # INSERT YOUR CODE
+    # 1. Рисуем основной временной ряд (бледным цветом)
+    fig.add_trace(go.Scatter(
+        y=ts,
+        mode='lines',
+        name='Time Series',
+        line=dict(color='lightgray', width=2)
+    ))
+
+    # 2. Извлекаем индексы и расстояния
+    # (делаем проверку на ключи, т.к. в разных версиях кода они могут быть 'indices' или 'index')
+    indices = bestmatch_results.get('indices', bestmatch_results.get('index', []))
+    distances = bestmatch_results.get('distances', bestmatch_results.get('distance', []))
+
+    m = len(query)
+
+    # 3. Рисуем найденные совпадения поверх ряда
+    for i, idx in enumerate(indices):
+        idx = int(idx)  # Гарантируем int для индексации
+
+        # Вырезаем участок ряда, соответствующий совпадению
+        subset_y = ts[idx: idx + m]
+        # Формируем соответствующие координаты X
+        subset_x = np.arange(idx, idx + m)
+
+        # Получаем значение расстояния для легенды
+        dist = distances[i] if i < len(distances) else 0.0
+
+        fig.add_trace(go.Scatter(
+            x=subset_x,
+            y=subset_y,
+            mode='lines',
+            name=f'Match {i + 1} (Dist: {dist:.2f})',
+            line=dict(color='red', width=3)
+        ))
+
+    # Настройка оформления графика
+    fig.update_layout(
+        title="Best Match Search Results",
+        xaxis_title="Time Index",
+        yaxis_title="Value",
+        template="plotly_white",
+        legend=dict(
+            yanchor="bottom",
+            y=0.99,
+            xanchor="auto",
+            x=0.5
+        )
+    )
+
+    fig.show()
 
 
-def pie_chart(labels: np.ndarrray, values: np.ndarrray, plot_title='Pie chart') -> None:
+def pie_chart(labels: np.ndarray, values: np.ndarray, plot_title='Pie chart') -> None:
     """
     Build the pie chart
 
@@ -183,4 +233,4 @@ def pie_chart(labels: np.ndarrray, values: np.ndarrray, plot_title='Pie chart') 
                       height=500
                       )
 
-    fig.show(renderer="colab")
+    fig.show()

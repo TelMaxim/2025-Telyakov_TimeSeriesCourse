@@ -25,6 +25,25 @@ def brute_force(ts: np.ndarray, query: np.ndarray, is_normalize: bool = True) ->
 
     dist_profile = np.zeros(shape=(N,))
 
-    # INSERT YOUR CODE
+    # 1. Нормализация запроса (строка 2-3 псевдокода)
+    curr_query = query.copy()
+    if is_normalize:
+        curr_query = z_normalize(curr_query)
+
+    # 2. Основной цикл 
+    for i in range(N):
+        # Выделение подпоследовательности
+        subsequence = ts[i: i + m]
+
+        # Нормализация подпоследовательности
+        if is_normalize:
+            # Важно: z_normalize возвращает копию, исходный ряд ts не меняется
+            curr_sub = z_normalize(subsequence)
+        else:
+            curr_sub = subsequence
+
+        dist = ED_distance(curr_query, curr_sub)
+
+        dist_profile[i] = dist
 
     return dist_profile

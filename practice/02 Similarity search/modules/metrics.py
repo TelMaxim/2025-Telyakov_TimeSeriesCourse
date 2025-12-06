@@ -17,7 +17,7 @@ def ED_distance(ts1: np.ndarray, ts2: np.ndarray) -> float:
     
     ed_dist = 0
 
-    # INSERT YOUR CODE
+    ed_dist = np.sqrt(np.sum((ts1 - ts2) ** 2))
 
     return ed_dist
 
