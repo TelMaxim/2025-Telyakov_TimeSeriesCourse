@@ -100,3 +100,28 @@ def random_walk(n: int) -> np.ndarray:
         random_walk_ts.append(value)
 
     return np.array(random_walk_ts)
+
+
+def topK_match(dist_profile: np.ndarray, topK: int, excl_zone: int):
+    """
+    Finds top-K local minima.
+    Returns list of tuples: [(index, distance), (index, distance), ...]
+    """
+    dist_profile = dist_profile.copy()
+    matches = []
+
+    for _ in range(topK):
+        idx = np.argmin(dist_profile)
+        dist = dist_profile[idx]
+
+        if np.isinf(dist):
+            break
+
+        # ВАЖНО: Добавляем ровно два элемента в кортеж
+        matches.append((idx, dist))
+
+        start = max(0, idx - excl_zone)
+        end = min(len(dist_profile), idx + excl_zone + 1)
+        dist_profile[start:end] = np.inf
+
+    return matches
